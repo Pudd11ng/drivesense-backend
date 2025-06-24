@@ -10,6 +10,10 @@ yarn-error.log
 .env.development
 .env.test
 .env.production
+gcp-service-account-key.json
+firebase-service-account.json
+assetlinks.json
+app.yaml
 
 # Logs
 logs/

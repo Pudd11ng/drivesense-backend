@@ -1,34 +1,36 @@
 {
-  "name": "drivesense",
-  "version": "1.0.0",
-  "description": "Backend for drivesense",
-  "main": "index.js",
+  "name": "drivesense-backend",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "test": "test"
+    "start": "node ./bin/www"
   },
-  "repository": {
-    "type": "git",
-    "url": "/"
-  },
-  "keywords": [
-    "drivesense"
-  ],
-  "author": "mj",
-  "license": "ISC",
   "dependencies": {
+    "@google-cloud/storage": "^7.16.0",
+    "@google/genai": "^1.2.0",
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "compression": "^1.8.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "debug": "~2.6.9",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
+    "express-session": "^1.18.1",
     "express-validator": "^7.2.1",
+    "firebase-admin": "^13.4.0",
+    "google-auth-library": "^9.15.1",
     "helmet": "^8.1.0",
+    "http-errors": "~1.6.3",
+    "jade": "^0.29.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.2",
     "morgan": "^1.10.0",
+    "nodemailer": "^7.0.3",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "uuid": "^11.1.0"
   }
 }
