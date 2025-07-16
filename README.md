@@ -24,7 +24,6 @@
 - [Flutter Integration](#flutter-integration)
 - [Emergency System](#emergency-system)
 - [AI Integration](#ai-integration)
-- [Data Models](#data-models)
 - [Development](#development)
 - [Deployment](#deployment)
 - [Troubleshooting](#troubleshooting)
@@ -414,52 +413,6 @@ GET /api/driving/12345/tips
 GET /api/driving/tips?startDate=2024-01-01&endDate=2024-12-31
 ```
 
-## 📊 Data Models
-
-### User Model
-```javascript
-{
-  firstName: String,
-  lastName: String,
-  email: String (unique),
-  password: String (hashed),
-  dateOfBirth: String,
-  country: String,
-  authMethod: String, // 'local' or 'google'
-  fcmTokens: [String], // FCM device tokens
-  emergencyContactUserIds: [ObjectId], // Emergency contacts
-  emergencyInviteCode: String, // Temporary invite code
-  emergencyInviteExpires: Date,
-  resetPasswordToken: String,
-  resetPasswordExpires: Date
-}
-```
-
-### Accident Model
-```javascript
-{
-  detectedTime: Date,
-  location: String,
-  contactNum: String,
-  contactTime: Date,
-  userId: ObjectId,
-  deviceId: ObjectId
-}
-```
-
-### DrivingHistory Model
-```javascript
-{
-  startTime: Date,
-  endTime: Date,
-  distanceDriven: Number,
-  userId: ObjectId,
-  deviceId: ObjectId,
-  accidents: [ObjectId],
-  riskyBehaviours: [ObjectId]
-}
-```
-
 ## 🔄 Development
 
 ### Running in Development Mode
@@ -482,38 +435,70 @@ npm run lint
 
 ### Project Structure
 ```
-src/
-├── config/             # Configuration files
-│   ├── database.js
-│   └── firebase-service-account.json
-├── controllers/        # Request handlers
-│   ├── authController.js
-│   ├── userController.js
-│   ├── accidentController.js
-│   ├── drivingHistoryController.js
-│   ├── alertController.js
-│   └── notificationController.js
-├── middleware/         # Custom middleware
-│   ├── auth.js
-│   ├── errorHandler.js
-│   └── validation/
-├── models/            # Database models
-│   ├── User.js
-│   ├── Accident.js
-│   ├── DrivingHistory.js
-│   └── Alert.js
-├── routes/            # API routes
-│   ├── authRoutes.js
-│   ├── userRoutes.js
-│   └── index.js
-├── services/          # Business logic
-│   ├── notificationService.js
-│   ├── emailService.js
-│   ├── storageService.js
-│   └── geminiService.js
-├── utils/             # Utility functions
-│   └── logger.js
-└── app.js             # Main application file
+drivesense-backend/
+├── bin/                    # Executable files
+│   └── www                 # Server startup script
+├── public/                 # Static files
+│   └── .well-known/        # Well-known URIs (for domain verification)
+├── src/                    # Source code
+│   ├── config/             # Configuration files
+│   │   ├── database.js
+│   │   └── firebase-service-account.json
+│   ├── controllers/        # Request handlers
+│   │   ├── accidentController.js
+│   │   ├── alertController.js
+│   │   ├── authController.js
+│   │   ├── deviceController.js
+│   │   ├── drivingHistoryController.js
+│   │   ├── fileController.js
+│   │   ├── notificationController.js
+│   │   ├── riskyBehaviourController.js
+│   │   └── userController.js
+│   ├── middleware/         # Custom middleware
+│   │   ├── accident.js
+│   │   ├── alert.js
+│   │   ├── auth.js
+│   │   ├── device.js
+│   │   ├── drivingHistory.js
+│   │   ├── errorHandler.js
+│   │   ├── riskyBehaviour.js
+│   │   └── user.js
+│   ├── models/            # Database models (Mongoose schemas)
+│   │   ├── Accident.js
+│   │   ├── Alert.js
+│   │   ├── Device.js
+│   │   ├── DrivingHistory.js
+│   │   ├── Notification.js
+│   │   ├── RiskyBehaviour.js
+│   │   └── User.js
+│   ├── routes/            # API routes
+│   │   ├── accidentRoutes.js
+│   │   ├── alertRoutes.js
+│   │   ├── authRoutes.js
+│   │   ├── deviceRoutes.js
+│   │   ├── drivingHistoryRoutes.js
+│   │   ├── index.js
+│   │   ├── notificationRoutes.js
+│   │   ├── riskyBehaviourRoutes.js
+│   │   └── userRoutes.js
+│   ├── services/          # Business logic services
+│   │   ├── emailService.js
+│   │   ├── geminiService.js
+│   │   ├── notificationService.js
+│   │   └── storageService.js
+│   ├── utils/             # Utility functions
+│   │   └── logger.js
+│   └── app.js             # Main application file
+├── .env                   # Environment variables (not in repo)
+├── .env.example          # Environment variables template
+├── .gitignore            # Git ignore rules
+├── app.yaml              # Google App Engine configuration
+├── docker-compose.yml    # Docker Compose configuration
+├── Dockerfile            # Docker image configuration
+├── LICENSE              # MIT License
+├── package.json         # Node.js dependencies and scripts
+├── package-lock.json    # Locked dependency versions
+└── README.md            # Project documentation
 ```
 
 ### Environment Variables
