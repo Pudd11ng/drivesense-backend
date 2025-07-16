@@ -113,10 +113,26 @@ The backend provides RESTful APIs for:
 - **MongoDB**: Database (local or MongoDB Atlas)
 
 ### Required Accounts & Services
-- **MongoDB Atlas**: Cloud database service
+- **MongoDB Atlas**: Cloud database service (v8.0+)
 - **Google Cloud Platform**: For storage and AI services
 - **Firebase Project**: For Cloud Messaging
 - **Gmail Account**: For email services (with app password)
+
+### Database Configuration
+The application uses **MongoDB Atlas v8.0+** (cloud database). You'll need to:
+
+1. **Create MongoDB Atlas Account**: [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
+2. **Create Cluster**: Set up a cluster (free tier available)
+3. **Create Database User**: Add a user with read/write permissions
+4. **Configure Network Access**: 
+   - For development: Allow access from anywhere (0.0.0.0/0)
+   - For production: Add your server's IP address
+5. **Get Connection String**: Copy the connection string from Atlas dashboard
+
+**Connection String Format**:
+```
+mongodb+srv://<username>:<password>@<cluster>.mongodb.net/drivesense?retryWrites=true&w=majority
+```
 
 ### API Keys & Credentials
 - Firebase service account key
@@ -515,10 +531,19 @@ drivesense-backend/
 
 ### Common Issues
 
+**MongoDB Atlas Connection Issues**
+- Check your connection string format and credentials
+- Verify network access settings in MongoDB Atlas dashboard
+- Ensure your IP address is whitelisted (or use 0.0.0.0/0 for development)
+- Check if your cluster is running and accessible
+- Verify database user permissions
+- For MongoDB Atlas v8.0+, ensure connection string includes `retryWrites=true&w=majority`
+
 **MongoDB Connection Failed**
-- Check MongoDB URI format
-- Verify database credentials
-- Ensure MongoDB Atlas IP whitelist includes your server
+- Check MongoDB URI format in .env file
+- Verify database credentials are correct
+- Test connection using MongoDB Compass or CLI
+- Check MongoDB Atlas cluster status
 
 **Firebase FCM Errors**
 - Verify service account key is properly configured
@@ -572,6 +597,28 @@ curl -X GET http://localhost:3000/api/health
 5. **Environment**: Set all production environment variables
 
 ### Docker Deployment
+
+#### Quick Start with Docker Compose
+```powershell
+# Clone and setup
+git clone https://github.com/Pudd11ng/drivesense-backend.git
+cd drivesense-backend
+
+# Copy environment file and configure
+Copy-Item .env.example .env
+# Edit .env with your actual values
+
+# Ensure Firebase service account is in place
+# Place firebase-service-account.json in src/config/
+
+# Run setup script (Windows PowerShell)
+.\docker-setup.ps1
+
+# Or manually start services
+docker-compose up -d
+```
+
+#### Production Dockerfile
 ```dockerfile
 FROM node:18-alpine
 
@@ -600,10 +647,22 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
 
 # Start application
 CMD ["npm", "start"]
+```
+
+#### Docker Build Commands
+```powershell
+# Build image
+docker build -t drivesense-backend .
+
+# Run container
+docker run -d -p 3000:3000 --env-file .env drivesense-backend
+
+# View logs
+docker logs <container-id>
 ```
 
 ### Docker Compose
@@ -619,41 +678,69 @@ services:
       - NODE_ENV=production
       - MONGODB_URI=${MONGODB_URI}
       - JWT_SECRET=${JWT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GCS_BUCKET_NAME=${GCS_BUCKET_NAME}
+      - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
+      - GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION}
+      - GOOGLE_GENAI_USE_VERTEXAI=${GOOGLE_GENAI_USE_VERTEXAI}
+      - EMAIL_SERVICE=${EMAIL_SERVICE}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - FRONTEND_URL=${FRONTEND_URL}
     volumes:
       - ./src/config/firebase-service-account.json:/app/src/config/firebase-service-account.json:ro
     restart: unless-stopped
-    depends_on:
-      - mongodb
-    
-  mongodb:
-    image: mongo:6.0
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
-    restart: unless-stopped
+    # Uses MongoDB Atlas (cloud) - no local database container needed
+```
 
-volumes:
-  mongodb_data:
+> **Note**: This configuration uses MongoDB Atlas (cloud) instead of a local MongoDB container. Make sure to:
+> - Set your `MONGODB_URI` to your MongoDB Atlas connection string
+> - Configure IP whitelist in MongoDB Atlas Network Access settings
+> - Use MongoDB Atlas version 8 compatible connection string format
+
+#### Docker Compose Commands
+```powershell
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+
+# Rebuild and restart
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+
+# Remove all data (including database)
+docker-compose down -v
 ```
 
 ### Google App Engine (app.yaml)
 ```yaml
-runtime: nodejs18
+runtime: nodejs20
 
 env_variables:
-  NODE_ENV: production
-  MONGODB_URI: ${MONGODB_URI}
-  JWT_SECRET: ${JWT_SECRET}
-  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-  GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-  GCS_BUCKET_NAME: ${GCS_BUCKET_NAME}
-  EMAIL_USER: ${EMAIL_USER}
-  EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+  MONGODB_URI: "your_mongodb_atlas_connection_string"
+  JWT_SECRET: "your_jwt_secret_key"
+  GOOGLE_CLIENT_ID: "your_google_client_id"
+  GOOGLE_CLIENT_SECRET: "your_google_client_secret"
+  FRONTEND_URL: "your_frontend_url"
+  EMAIL_SERVICE: "gmail"
+  EMAIL_USER: "your_email@gmail.com"
+  EMAIL_PASSWORD: "your_app_password"
+```
 
+**Note**:
+1. Replace all values with your actual configuration
+2. Consider using Google Cloud Secret Manager for sensitive data
+3. Add additional configuration as needed:
+
+```yaml
+# Optional: Add scaling and handlers
 automatic_scaling:
   min_instances: 1
   max_instances: 10

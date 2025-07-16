@@ -28,6 +28,17 @@ app.use(passport.initialize());
 // Serve .well-known directory files
 app.use('/.well-known', express.static(path.join(__dirname, '../public/.well-known')));
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    version: require('../package.json').version || '0.0.0'
+  });
+});
+
 // Routes
 app.use('/api', routes);
 
