@@ -34,11 +34,6 @@ class EmailService {
           <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
             <h2>Reset Your Password</h2>
             <p>We received a request to reset your password for your ${appName} account.</p>
-            <p>Your password reset code is:</p>
-            
-            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 4px; margin: 20px 0; text-align: center;">
-              <span style="font-family: monospace; font-size: 24px; font-weight: bold; letter-spacing: 2px;">${resetToken}</span>
-            </div>
             
             <p><strong>Instructions:</strong></p>
             <ol style="margin-bottom: 25px;">

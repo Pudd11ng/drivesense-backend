@@ -202,10 +202,9 @@ class AuthController {
       // Find user by email
       const user = await User.findOne({ email });
       if (!user) {
-        // For security, don't reveal if user exists or not
-        return res.status(200).json({
-          message:
-            "If your email is registered, you will receive a password reset link shortly",
+        // Explicitly inform the user if the email is not registered
+        return res.status(400).json({
+          message: "This email is not registered in the system",
         });
       }
 
